@@ -25,7 +25,7 @@ func Warn(message string) {
 
 }
 
-func Debug(message string){
+func Debug(message string) {
 	Logger.Debug(message)
 
 }

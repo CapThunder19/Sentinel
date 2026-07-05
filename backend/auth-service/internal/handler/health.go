@@ -1,14 +1,14 @@
 package handler
 
 import (
-    "net/http"
+	"net/http"
 
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
-func Health (c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"service": "auth-service",
-            "status": "running",
-		})
-	}
+func Health(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"service": "auth-service",
+		"status":  "running",
+	})
+}

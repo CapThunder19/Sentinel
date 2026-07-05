@@ -3,7 +3,6 @@ package config
 import (
 	"log"
 
-	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -17,10 +16,9 @@ type Config struct {
 }
 
 func Load() *Config {
-	_ = godotenv.Load()
 	viper.AutomaticEnv()
 
-	cfg := &Config{
+	return &Config{
 		Port:         viper.GetString("PORT"),
 		Environment:  viper.GetString("APP_ENV"),
 		DatabaseURL:  viper.GetString("DATABASE_URL"),
@@ -28,14 +26,18 @@ func Load() *Config {
 		KafkaBrokers: viper.GetString("KAFKA_BROKERS"),
 		JWTSecret:    viper.GetString("JWT_SECRET"),
 	}
+}
 
-	if cfg.Port == "" {
+func (c *Config) Validate() {
+	if c.Port == "" {
 		log.Fatal("PORT is required")
 	}
 
-	if cfg.JWTSecret == "" {
-		log.Fatal("JWT_SECRET is required")
+	if c.DatabaseURL == "" {
+		log.Fatal("DATABASE_URL is required")
 	}
 
-	return cfg
+	if c.JWTSecret == "" {
+		log.Fatal("JWT_SECRET is required")
+	}
 }
