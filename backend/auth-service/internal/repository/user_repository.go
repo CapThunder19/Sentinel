@@ -57,3 +57,42 @@ func (r *PostgreSQLUserRepository) Create(user *models.User) error {
 
 	return nil
 }
+
+func (r *PostgreSQLUserRepository) GetByEmail(email string) (*models.User, error) {
+	user := &models.User{}
+
+	query := `
+	SELECT
+		id,
+		username,
+		email,
+		password_hash,
+		role,
+		is_verified,
+		created_at,
+		updated_at
+	FROM users
+	WHERE email = $1
+	`
+
+	err := r.db.QueryRow(
+		context.Background(),
+		query,
+		email,
+	).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.PasswordHash,
+		&user.Role,
+		&user.IsVerified,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
