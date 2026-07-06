@@ -4,11 +4,9 @@ import (
 	"errors"
 
 	"golang.org/x/crypto/bcrypt"
-	
 
 	"github.com/CapThunder19/Sentinel/backend/auth-service/internal/models"
 )
-
 
 type UserRepository interface {
 	Create(user *models.User) error
@@ -32,7 +30,6 @@ func (s *AuthService) Register(req RegisterRequest) (*RegisterResponse, error) {
 	if err == nil && existingUser != nil {
 		return nil, errors.New("email already registered")
 	}
-
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(req.Password),

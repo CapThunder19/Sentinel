@@ -5,10 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/CapThunder19/Sentinel/backend/auth-service/internal/repository"
 	"github.com/CapThunder19/Sentinel/backend/auth-service/internal/routes"
+	"github.com/CapThunder19/Sentinel/backend/auth-service/internal/service"
 	"github.com/CapThunder19/Sentinel/backend/shared/config"
 	"github.com/CapThunder19/Sentinel/backend/shared/database"
 	"github.com/CapThunder19/Sentinel/backend/shared/logger"
+	"github.com/CapThunder19/Sentinel/backend/auth-service/internal/handler"
 )
 
 func main() {
@@ -28,7 +31,13 @@ func main() {
 
 	router := gin.Default()
 
-	routes.RegisterRoutes(router)
+	repo := repository.NewUserRepository(pool)
+
+	authService := service.NewAuthService(repo)
+
+	authHandler := handler.NewAuthHandler(authService)
+
+	routes.RegisterRoutes(router, authHandler)
 
 	logger.Info("Auth Service listening on port " + cfg.Port)
 

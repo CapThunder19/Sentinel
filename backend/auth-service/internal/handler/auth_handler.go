@@ -1,0 +1,41 @@
+package handler
+
+import (
+	"net/http"
+
+	"github.com/CapThunder19/Sentinel/backend/auth-service/internal/service"
+	"github.com/gin-gonic/gin"
+)
+
+type AuthHandler struct {
+	authService *service.AuthService
+}
+
+func NewAuthHandler(authService *service.AuthService) *AuthHandler {
+	return &AuthHandler{
+		authService: authService,
+	}
+}
+
+func (h *AuthHandler) Register(c *gin.Context) {
+
+	var req service.RegisterRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	res, err := h.authService.Register(req)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, res)
+}
