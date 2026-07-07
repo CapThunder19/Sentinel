@@ -1,55 +1,24 @@
 # Sentinel
 
-> A Cloud-Native Distributed Backend Platform built with Go, Rust, Docker, Kubernetes, PostgreSQL, Redis, Kafka, gRPC, and Next.js.
+> Cloud-Native Distributed Backend Platform built with **Go** and **Rust**.
 
-> **Status:** 🚧 In Development
-
----
-
-## 📖 Overview
-
-Sentinel is a production-grade distributed backend platform built to explore modern backend engineering and cloud-native technologies.
-
-The goal is not to build another CRUD application, but to understand how large-scale backend systems are designed, deployed, monitored, and scaled.
-
-This project focuses on:
-
-- Clean Architecture
-- Microservices
-- Distributed Systems
-- Event-Driven Architecture
-- Cloud-Native Development
-- High Performance Backend Engineering
+Sentinel is a production-inspired distributed backend system designed to explore microservices, authentication, distributed systems, cloud-native technologies, and high-performance networking.
 
 ---
 
-# 🚀 Tech Stack
+# Tech Stack
 
-## Backend
-
+### Backend
 - Go
 - Gin
-- pgx
-- Zap Logger
-
-## Database
-
 - PostgreSQL
-
-## Infrastructure
-
+- pgx
+- bcrypt
+- JWT
 - Docker
-- Docker Compose
 
-## Frontend (Planned)
-
-- Next.js
-- TypeScript
-- Tailwind CSS
-
-## Upcoming Technologies
-
-- Rust
+### Planned
+- Rust (API Gateway)
 - Redis
 - Kafka
 - gRPC
@@ -59,231 +28,210 @@ This project focuses on:
 
 ---
 
-# 📁 Project Structure
+# Current Architecture
 
-```text
-Sentinel/
-
-├── backend/
-│   ├── auth-service/
-│   └── shared/
-│       ├── config/
-│       ├── database/
-│       └── logger/
-│
-├── frontend/
-│
-├── deployments/
-│   ├── docker/
-│   └── kubernetes/
-│
-├── docs/
-│
-└── README.md
+```
+                Client
+                   │
+                   ▼
+            Auth Service (Go)
+                   │
+         ┌─────────┴─────────┐
+         ▼                   ▼
+    Auth Handler        JWT Service
+         │
+         ▼
+     Auth Service
+         │
+         ▼
+ User Repository
+         │
+         ▼
+   PostgreSQL
 ```
 
 ---
 
-# ✅ Current Progress
-
-## Infrastructure
-
-- [x] Repository setup
-- [x] Project structure
-- [x] Docker Compose
-- [x] PostgreSQL Container
-- [x] Persistent Docker Volume
-
----
-
-## Backend
-
-- [x] Go Module
-- [x] Configuration Management
-- [x] Zap Logging
-- [x] PostgreSQL Connection Pool
-- [x] Gin Server
-- [x] Health Check Endpoint
-- [x] Clean Project Structure
-
----
+# Features
 
 ## Authentication
 
-- [ ] Database Migrations
-- [ ] User Model
-- [ ] User Repository
-- [ ] Password Hashing
-- [ ] Register API
-- [ ] Login API
-- [ ] JWT Authentication
-- [ ] Refresh Tokens
-- [ ] Role-Based Access Control
+- User Registration
+- User Login
+- Password Hashing (bcrypt)
+- JWT Access Token Generation
+- Repository Pattern
+- Dependency Injection
+- Service Layer
+- REST APIs
 
 ---
 
-## Services
+# API Endpoints
 
-- [ ] API Gateway (Rust)
-- [ ] Auth Service
-- [ ] User Service
-- [ ] Project Service
-- [ ] Notification Service
-
----
-
-## Infrastructure (Upcoming)
-
-- [ ] Redis
-- [ ] Kafka
-- [ ] gRPC
-- [ ] Kubernetes
-- [ ] Prometheus
-- [ ] Grafana
-
----
-
-# 🏗 Current Architecture
+## Register
 
 ```
-                 Docker
-                    │
-                    ▼
-          PostgreSQL Container
-                    │
-                    ▼
-           Connection Pool (pgx)
-                    │
-                    ▼
-               Auth Service
-                    │
-                    ▼
-                 Gin Router
-                    │
-                    ▼
-                 HTTP Client
+POST /register
 ```
 
----
-
-# ⚙️ Running Locally
-
-## Clone
-
-```bash
-git clone https://github.com/CapThunder19/Sentinel.git
-
-cd Sentinel
-```
-
----
-
-## Start PostgreSQL
-
-```bash
-cd deployments/docker
-
-docker compose up -d
-```
-
----
-
-## Start Backend
-
-```bash
-cd backend
-
-go run ./auth-service/cmd/server
-```
-
----
-
-## Verify
-
-Visit:
-
-```
-http://localhost:8081/
-```
-
-Expected response:
+Request
 
 ```json
 {
-    "service":"auth-service",
-    "status":"running"
+    "username": "anirudh",
+    "email": "ani@example.com",
+    "password": "password123"
+}
+```
+
+Response
+
+```json
+{
+    "id": "...",
+    "username": "anirudh",
+    "email": "ani@example.com"
 }
 ```
 
 ---
 
-# 🎯 Roadmap
+## Login
 
-Phase 1 ✅
+```
+POST /login
+```
 
-- Project Setup
-- Docker
-- PostgreSQL
-- Logging
-- Configuration
+Request
 
-Phase 2 🚧
+```json
+{
+    "email": "ani@example.com",
+    "password": "password123"
+}
+```
 
-- Database Migrations
-- User Repository
-- Authentication
-- JWT
+Response
 
-Phase 3
-
-- Redis
-- Caching
-- Session Management
-
-Phase 4
-
-- Kafka
-- Event Driven Architecture
-
-Phase 5
-
-- Rust API Gateway
-
-Phase 6
-
-- gRPC Communication
-
-Phase 7
-
-- Kubernetes Deployment
-
-Phase 8
-
-- Monitoring
-- Prometheus
-- Grafana
+```json
+{
+    "access_token": "<jwt>",
+    "token_type": "Bearer"
+}
+```
 
 ---
 
-# 📚 Learning Goals
+# Project Structure
 
-This project is designed to learn and practice:
+```
+backend/
+│
+├── auth-service/
+│   ├── cmd/
+│   ├── internal/
+│   │   ├── handler/
+│   │   ├── repository/
+│   │   ├── routes/
+│   │   ├── service/
+│   │   └── models/
+│
+├── shared/
+│   ├── auth/
+│   ├── config/
+│   ├── database/
+│   └── logger/
+│
+└── migrations/
+```
 
-- Go Backend Development
-- Rust Systems Programming
-- Distributed Systems
-- Cloud Native Architecture
-- Docker
-- Kubernetes
+---
+
+# Testing
+
+### Integration Tests
+
+- PostgreSQL Repository Tests
+
+### Unit Tests
+
+- Registration Service
+- Login Service
+- JWT Generation
+
+Run all tests
+
+```bash
+go test ./...
+```
+
+---
+
+# Database
+
+PostgreSQL is managed through Docker.
+
+Run migrations
+
+```bash
+migrate \
+-path migrations \
+-database "postgres://postgres:<password>@localhost:5433/sentinel?sslmode=disable" \
+up
+```
+
+---
+
+# Current Progress
+
+- [x] Docker Setup
+- [x] PostgreSQL Integration
+- [x] Database Migrations
+- [x] Repository Layer
+- [x] Repository Tests
+- [x] Service Layer
+- [x] Service Tests
+- [x] User Registration
+- [x] User Login
+- [x] Password Hashing
+- [x] JWT Authentication
+- [ ] JWT Middleware
+- [ ] Refresh Tokens
+- [ ] Rust API Gateway
+- [ ] Redis Caching
+- [ ] Kafka Messaging
+- [ ] gRPC Communication
+- [ ] Kubernetes Deployment
+- [ ] Prometheus Metrics
+- [ ] Grafana Dashboards
+
+---
+
+# Roadmap
+
+### Phase 1 ✅
+
+- Authentication Service
 - PostgreSQL
+- JWT
+- Testing
+
+### Phase 2
+
+- Rust API Gateway
+- Authentication Middleware
+- Protected APIs
+
+### Phase 3
+
+- User Service
 - Redis
 - Kafka
 - gRPC
-- Authentication
-- Observability
 
----
+### Phase 4
 
-# 📜 License
-
-MIT License
+- Kubernetes
+- Monitoring
+- CI/CD
