@@ -54,3 +54,32 @@ func TestRegisterSuccess(t *testing.T) {
 	assert.Equal(t, req.Username, res.Username)
 	assert.Equal(t, req.Email, res.Email)
 }
+
+func TestLoginSuccess(t *testing.T) {
+
+	repo := NewFakeUserRepository()
+
+	service := NewAuthService(repo)
+
+	registerReq := RegisterRequest{
+		Username: "anirudh",
+		Email:    "ani@test.com",
+		Password: "password123",
+	}
+
+	_, err := service.Register(registerReq)
+	require.NoError(t, err)
+
+	loginReq := LoginRequest{
+		Email:    "ani@test.com",
+		Password: "password123",
+	}
+
+	res, err := service.Login(loginReq)
+
+	require.NoError(t, err)
+	require.NotNil(t, res)
+
+	assert.NotEmpty(t, res.AccessToken)
+	assert.Equal(t, "Bearer", res.TokenType)
+}

@@ -13,4 +13,6 @@ func RegisterRoutes(
 	router.GET("/", handler.Health)
 
 	router.POST("/register", authHandler.Register)
+
+	router.POST("/login", authHandler.Login)
 }

@@ -6,6 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/CapThunder19/Sentinel/backend/auth-service/internal/models"
+	"github.com/CapThunder19/Sentinel/backend/shared/auth"
 )
 
 type UserRepository interface {
@@ -58,5 +59,37 @@ func (s *AuthService) Register(req RegisterRequest) (*RegisterResponse, error) {
 		ID:       user.ID.String(),
 		Username: user.Username,
 		Email:    user.Email,
+	}, nil
+}
+
+func (s *AuthService) Login(req LoginRequest) (*LoginResponse, error) {
+
+	user, err := s.repo.GetByEmail(req.Email)
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.PasswordHash),
+		[]byte(req.Password),
+	)
+
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	token, err := auth.GenerateToken(
+		user.ID.String(),
+		user.Email,
+		"test-secret",
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &LoginResponse{
+		AccessToken: token,
+		TokenType:   "Bearer",
 	}, nil
 }
