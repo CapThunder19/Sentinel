@@ -62,3 +62,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, res)
 }
+
+func (h *AuthHandler) Me(c *gin.Context) {
+
+	userID := c.GetString("userID")
+	email := c.GetString("email")
+
+	c.JSON(http.StatusOK, gin.H{
+		"user_id": userID,
+		"email":   email,
+	})
+}

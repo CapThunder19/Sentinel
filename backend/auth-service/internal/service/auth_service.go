@@ -15,12 +15,18 @@ type UserRepository interface {
 }
 
 type AuthService struct {
-	repo UserRepository
+	repo      UserRepository
+	jwtSecret string
 }
 
-func NewAuthService(repo UserRepository) *AuthService {
+func NewAuthService(
+	repo UserRepository,
+	jwtSecret string,
+) *AuthService {
+
 	return &AuthService{
-		repo: repo,
+		repo:      repo,
+		jwtSecret: jwtSecret,
 	}
 }
 
@@ -81,7 +87,7 @@ func (s *AuthService) Login(req LoginRequest) (*LoginResponse, error) {
 	token, err := auth.GenerateToken(
 		user.ID.String(),
 		user.Email,
-		"test-secret",
+		s.jwtSecret,
 	)
 
 	if err != nil {

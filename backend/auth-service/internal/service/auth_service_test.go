@@ -38,7 +38,7 @@ func (r *FakeUserRepository) GetByEmail(email string) (*models.User, error) {
 func TestRegisterSuccess(t *testing.T) {
 	repo := NewFakeUserRepository()
 
-	service := NewAuthService(repo)
+	service := NewAuthService(repo, "test-secret")
 
 	req := RegisterRequest{
 		Username: "anirudh",
@@ -59,7 +59,10 @@ func TestLoginSuccess(t *testing.T) {
 
 	repo := NewFakeUserRepository()
 
-	service := NewAuthService(repo)
+	service := NewAuthService(
+		repo,
+		"test-secret",
+	)
 
 	registerReq := RegisterRequest{
 		Username: "anirudh",
