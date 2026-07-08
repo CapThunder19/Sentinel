@@ -16,7 +16,6 @@ func Connect(cfg *config.Config) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
-	
 	if poolConfig.ConnConfig.ConnectTimeout == 0 {
 		poolConfig.ConnConfig.ConnectTimeout = 5 * time.Second
 	}

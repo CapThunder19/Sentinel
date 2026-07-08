@@ -12,6 +12,7 @@ import (
 type UserRepository interface {
 	Create(user *models.User) error
 	GetByEmail(email string) (*models.User, error)
+	GetByID(id string) (*models.User, error)
 }
 
 type AuthService struct {
@@ -98,4 +99,8 @@ func (s *AuthService) Login(req LoginRequest) (*LoginResponse, error) {
 		AccessToken: token,
 		TokenType:   "Bearer",
 	}, nil
+}
+
+func (s *AuthService) GetProfile(userID string) (*models.User, error) {
+	return s.repo.GetByID(userID)
 }

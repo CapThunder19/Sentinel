@@ -86,3 +86,13 @@ func TestLoginSuccess(t *testing.T) {
 	assert.NotEmpty(t, res.AccessToken)
 	assert.Equal(t, "Bearer", res.TokenType)
 }
+
+func (r *FakeUserRepository) GetByID(id string) (*models.User, error) {
+	for _, user := range r.users {
+		if user.ID.String() == id {
+			return user, nil
+		}
+	}
+
+	return nil, errors.New("user not found")
+}

@@ -31,9 +31,11 @@ func TestCreateUser(t *testing.T) {
 
 	repo := NewUserRepository(pool)
 
+	suffix := time.Now().UnixNano()
+
 	user := &models.User{
-		Username:     "anirudh",
-		Email:        "ani@example.com",
+		Username:     fmt.Sprintf("anirudh_%d", suffix),
+		Email:        fmt.Sprintf("ani_%d@example.com", suffix),
 		PasswordHash: "hashed-password",
 		Role:         "USER",
 		IsVerified:   false,
@@ -71,9 +73,11 @@ func TestGetUserByEmail(t *testing.T) {
 
 	repo := NewUserRepository(pool)
 
+	suffix := time.Now().UnixNano()
+
 	user := &models.User{
-		Username:     "anirudh",
-		Email:        fmt.Sprintf("ani_%d@example.com", time.Now().UnixNano()),
+		Username:     fmt.Sprintf("anirudh_%d", suffix),
+		Email:        fmt.Sprintf("ani_%d@example.com", suffix),
 		PasswordHash: "hashed-password",
 		Role:         "USER",
 		IsVerified:   false,
@@ -97,6 +101,50 @@ func TestGetUserByEmail(t *testing.T) {
 		context.Background(),
 		"DELETE FROM users WHERE email=$1",
 		user.Email,
+	)
+
+	require.NoError(t, err)
+}
+
+func TestGetUserByID(t *testing.T) {
+	logger.Init()
+
+	_ = godotenv.Load("../../../.env.test")
+
+	cfg := config.Load()
+
+	pool, err := database.Connect(cfg)
+	require.NoError(t, err)
+
+	defer pool.Close()
+
+	repo := NewUserRepository(pool)
+
+	suffix := time.Now().UnixNano()
+
+	user := &models.User{
+		Username:     fmt.Sprintf("test-user-%d", suffix),
+		Email:        fmt.Sprintf("test-%d@example.com", suffix),
+		PasswordHash: "hashed-password",
+		Role:         "USER",
+		IsVerified:   false,
+	}
+
+	err = repo.Create(user)
+	require.NoError(t, err)
+
+	found, err := repo.GetByID(user.ID.String())
+
+	require.NoError(t, err)
+
+	assert.Equal(t, user.ID, found.ID)
+	assert.Equal(t, user.Username, found.Username)
+	assert.Equal(t, user.Email, found.Email)
+
+	_, err = pool.Exec(
+		context.Background(),
+		"DELETE FROM users WHERE id=$1",
+		user.ID,
 	)
 
 	require.NoError(t, err)

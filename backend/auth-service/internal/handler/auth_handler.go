@@ -66,10 +66,22 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) Me(c *gin.Context) {
 
 	userID := c.GetString("userID")
-	email := c.GetString("email")
+
+	user, err := h.authService.GetProfile(userID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "user not found",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"user_id": userID,
-		"email":   email,
+		"id":          user.ID,
+		"username":    user.Username,
+		"email":       user.Email,
+		"role":        user.Role,
+		"is_verified": user.IsVerified,
+		"created_at":  user.CreatedAt,
+		"updated_at":  user.UpdatedAt,
 	})
 }
