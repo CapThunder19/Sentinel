@@ -349,4 +349,3 @@ The goal of Sentinel is to build a production-inspired distributed backend platf
 
 **Anirudh Patwal**
 
-Building Sentinel to master Go, Rust, distributed systems, and cloud-native engineering.
