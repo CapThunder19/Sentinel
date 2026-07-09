@@ -2,6 +2,7 @@ mod config;
 mod handlers;
 mod routes;
 mod state;
+mod models;
 
 use axum::serve;
 use std::net::SocketAddr;

@@ -1,5 +1,5 @@
 use axum::{
-    routing::get,
+    routing::{get,post},
     Router,
 };
 
@@ -15,6 +15,6 @@ use crate::handlers::{
 pub fn create_router(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health::health))
-        .route("/auth/test", get(auth::login_proxy))
+        .route("/auth/login", post(auth::login_proxy))
         .with_state(state)
 }

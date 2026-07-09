@@ -1,26 +1,37 @@
 use axum::{
     extract::State,
     http::StatusCode,
+    Json,
 };
 
-use crate::state::AppState;
+use crate::{
+    models::{LoginRequest, LoginResponse},
+    state::AppState,
+};
 
 pub async fn login_proxy(
     State(state): State<AppState>,
-) -> Result<String, StatusCode> {
-    let url = format!("{}/", state.config.auth_service_url);
+    Json(payload): Json<LoginRequest>,
+) -> Result<Json<LoginResponse>, StatusCode> {
+
+    let url = format!("{}/login", state.config.auth_service_url);
 
     let response = state
         .http_client
-        .get(url)
+        .post(url)
+        .json(&payload)
         .send()
         .await
         .map_err(|_| StatusCode::BAD_GATEWAY)?;
 
-    let body = response
-        .text()
+    if !response.status().is_success() {
+        return Err(StatusCode::UNAUTHORIZED);
+    }
+
+    let login_response = response
+        .json::<LoginResponse>()
         .await
         .map_err(|_| StatusCode::BAD_GATEWAY)?;
 
-    Ok(body)
+    Ok(Json(login_response))
 }
