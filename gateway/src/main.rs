@@ -1,19 +1,15 @@
 mod config;
 mod handlers;
+mod models;
 mod routes;
 mod state;
-mod models;
 
 use axum::serve;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tracing::info;
 
-use crate::{
-    config::Config,
-    routes::create_router,
-    state::AppState,
-};
+use crate::{config::Config, routes::create_router, state::AppState};
 
 #[tokio::main]
 async fn main() {
@@ -38,7 +34,5 @@ async fn main() {
         .await
         .expect("Failed to bind TCP listener");
 
-    serve(listener, app)
-        .await
-        .expect("Failed to start server");
+    serve(listener, app).await.expect("Failed to start server");
 }

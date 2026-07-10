@@ -17,8 +17,7 @@ impl Config {
                 .parse()
                 .expect("Invalid PORT"),
 
-            auth_service_url: env::var("AUTH_SERVICE_URL")
-                .expect("AUTH_SERVICE_URL is required"),
+            auth_service_url: env::var("AUTH_SERVICE_URL").expect("AUTH_SERVICE_URL is required"),
         }
     }
 }
