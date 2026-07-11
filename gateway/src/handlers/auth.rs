@@ -1,53 +1,42 @@
-use axum::{Json, extract::State, http::StatusCode};
-
-use crate::{
-    models::{LoginRequest, LoginResponse, RegisterRequest, UserResponse},
-    state::AppState,
+use axum::{
+    body::{to_bytes, Body},
+    extract::{Path, State},
+    http::{Request, StatusCode},
+    response::IntoResponse,
 };
 
-pub async fn login_proxy(
+use crate::state::AppState;
+
+pub async fn proxy(
+    Path(path): Path<String>,
     State(state): State<AppState>,
-    Json(payload): Json<LoginRequest>,
-) -> Result<Json<LoginResponse>, StatusCode> {
-    let url = format!("{}/login", state.config.auth_service_url);
+    request: Request<Body>,
+) -> Result<impl IntoResponse, StatusCode> {
+
+    let method = request.method().clone();
+
+    let body = to_bytes(request.into_body(), usize::MAX)
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    let url = format!(
+        "{}/{}",
+        state.config.auth_service_url,
+        path,
+    );
+
+    println!("Forwarding {} {}", method, url);
 
     let response = state
         .http_client
-        .post(url)
-        .json(&payload)
-        .send()
-        .await
-        .map_err(|_| StatusCode::BAD_GATEWAY)?;
-
-    if !response.status().is_success() {
-        return Err(StatusCode::UNAUTHORIZED);
-    }
-
-    let login_response = response
-        .json::<LoginResponse>()
-        .await
-        .map_err(|_| StatusCode::BAD_GATEWAY)?;
-
-    Ok(Json(login_response))
-}
-
-pub async fn register_proxy(
-    State(state): State<AppState>,
-    Json(payload): Json<RegisterRequest>,
-) -> Result<(StatusCode, String), StatusCode> {
-
-    let url = format!("{}/register", state.config.auth_service_url);
-
-    let response = state
-        .http_client
-        .post(url)
-        .json(&payload)
+        .request(method, url)
+        .body(body)
         .send()
         .await
         .map_err(|_| StatusCode::BAD_GATEWAY)?;
 
     let status = StatusCode::from_u16(response.status().as_u16())
-        .unwrap_or(StatusCode::BAD_GATEWAY);
+        .unwrap();
 
     let body = response
         .text()
