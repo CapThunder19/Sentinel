@@ -1,351 +1,299 @@
-# Sentinel 🛡️
+# Sentinel
 
-> A cloud-native distributed backend platform built with **Rust**, **Go**, **PostgreSQL**, **Redis**, **Kafka**, **gRPC**, **Docker**, **Kubernetes**, and **Next.js**.
-
-Sentinel is a production-inspired microservices platform designed to learn and demonstrate modern backend architecture, distributed systems, and cloud-native development.
+> A cloud-native distributed backend platform built with **Rust** and **Go**, designed to explore modern backend engineering, microservices, distributed systems, and cloud-native technologies.
 
 ---
 
-# 🚀 Tech Stack
+# Architecture
 
-## Backend
-- Go (Gin)
-- Rust (Axum + Tokio) *(Coming Soon)*
+```text
+                    Client / Frontend
+                           │
+                           ▼
+                  🦀 Rust API Gateway
+        ┌──────────────────────────────────┐
+        │ Generic Reverse Proxy            │
+        │ Dynamic Routing                  │
+        │ Header Forwarding                │
+        │ Request Forwarding               │
+        └──────────────────────────────────┘
+                           │
+                           ▼
+                  🐹 Go Auth Service
+                           │
+                    PostgreSQL Database
+```
+
+---
+
+# Tech Stack
+
+## Gateway
+
+- Rust
+- Axum
+- Tokio
+- Reqwest
+
+## Auth Service
+
+- Go
+- Gin
 - PostgreSQL
-- Redis *(Planned)*
-- Kafka *(Planned)*
-- gRPC *(Planned)*
+- pgx
+- bcrypt
+- JWT
 
-## Frontend
-- Next.js
-- TypeScript
-- Tailwind CSS
+## Database
 
-## DevOps
-- Docker
-- Kubernetes *(Planned)*
-- Prometheus *(Planned)*
-- Grafana *(Planned)*
+- PostgreSQL
 
 ---
 
-# 📂 Project Structure
+# Features
+
+## Rust API Gateway
+
+- Generic Reverse Proxy
+- Dynamic Route Forwarding (`/auth/*`)
+- Request Body Forwarding
+- Header Forwarding
+- Health Endpoint
+- Shared HTTP Client
+- Configuration Management
+- Service-to-Service Communication
+
+---
+
+## Go Authentication Service
+
+- User Registration
+- User Login
+- Password Hashing (bcrypt)
+- JWT Authentication
+- Protected `/me` Endpoint
+- PostgreSQL Integration
+- Repository Pattern
+- Service Layer
+- Unit Tests
+- Repository Tests
+
+---
+
+# Project Structure
 
 ```
-Sentinel/
+sentinel/
+
+├── gateway/                 # Rust API Gateway
+│   ├── src/
+│   │   ├── handlers/
+│   │   ├── routes.rs
+│   │   ├── config.rs
+│   │   ├── state.rs
+│   │   └── main.rs
+│   └── Cargo.toml
 │
 ├── backend/
 │   ├── auth-service/
-│   ├── shared/
-│   └── migrations/
+│   │   ├── cmd/
+│   │   ├── internal/
+│   │   │   ├── handler/
+│   │   │   ├── repository/
+│   │   │   ├── routes/
+│   │   │   ├── service/
+│   │   │   └── models/
+│   │   └── migrations/
+│   │
+│   └── shared/
+│       ├── auth/
+│       ├── config/
+│       ├── database/
+│       └── logger/
 │
-├── gateway/          # Rust API Gateway (Coming Soon)
-│
-├── frontend/         # Next.js Frontend (Coming Soon)
-│
-├── deployments/
-│
-└── docs/
+└── README.md
 ```
 
 ---
 
-# ✅ Current Features
+# Authentication Flow
 
-## Authentication Service
-
-- User Registration
-- Secure Password Hashing (bcrypt)
-- User Login
-- JWT Authentication
-- JWT Middleware
-- Protected Routes
-- Authenticated User Profile (`/me`)
-- Repository Pattern
-- Service Layer
-- Dependency Injection
-- PostgreSQL Integration
-- Database Migrations
-- Docker Support
-
----
-
-# 🏗️ Authentication Architecture
-
-```
-               Client
-                  │
-                  ▼
-         POST /register
-                  │
-             Hash Password
-             (bcrypt)
-                  │
-                  ▼
-             PostgreSQL
-                  ▲
-                  │
-         POST /login
-                  │
-          Validate Password
-                  │
-                  ▼
-            Generate JWT
-                  │
-                  ▼
-         Return Access Token
-                  │
-                  ▼
-Authorization: Bearer <JWT>
-                  │
-                  ▼
-          JWT Middleware
-                  │
-        Extract User ID
-                  │
-                  ▼
-          Repository Layer
-                  │
-                  ▼
-            PostgreSQL
-                  │
-                  ▼
-       Return User Profile
-```
-
----
-
-# 📌 API Endpoints
-
-## Health Check
-
-```
-GET /
-```
-
----
-
-## Register
-
-```
-POST /register
-```
-
-Request
-
-```json
-{
-  "username": "anirudh",
-  "email": "ani@example.com",
-  "password": "password123"
-}
-```
-
----
-
-## Login
-
-```
+```text
+Client
+   │
+POST /auth/login
+   │
+   ▼
+Rust Gateway
+   │
+Generic Reverse Proxy
+   │
 POST /login
-```
-
-Request
-
-```json
-{
-  "email": "ani@example.com",
-  "password": "password123"
-}
-```
-
-Response
-
-```json
-{
-  "AccessToken": "<jwt-token>",
-  "TokenType": "Bearer"
-}
+   │
+   ▼
+Go Auth Service
+   │
+Verify Credentials
+   │
+Generate JWT
+   │
+   ▼
+Rust Gateway
+   │
+   ▼
+Client
 ```
 
 ---
 
-## Authenticated User
+# Protected Route Flow
 
-```
-GET /me
-```
-
-Headers
-
-```
+```text
+Client
+   │
 Authorization: Bearer <JWT>
-```
-
-Response
-
-```json
-{
-  "id": "...",
-  "username": "anirudh",
-  "email": "ani@example.com",
-  "role": "USER",
-  "is_verified": false,
-  "created_at": "...",
-  "updated_at": "..."
-}
-```
-
----
-
-# 🗄️ Database
-
-Current tables
-
-- users
-- schema_migrations
-
----
-
-# 🧪 Running Tests
-
-```
-go test ./...
-```
-
-Current Status
-
-- Repository Tests ✅
-- Service Tests ✅
-- Authentication Tests ✅
-- JWT Tests ✅
-- Integration Tests ✅
-
----
-
-# 🐳 Running Locally
-
-Start PostgreSQL
-
-```bash
-cd deployments/docker
-
-docker compose up -d
-```
-
-Run migrations
-
-```bash
-cd backend
-
-migrate \
--path migrations \
--database "postgres://postgres:postgres@localhost:5433/sentinel?sslmode=disable" \
-up
-```
-
-Run Auth Service
-
-```bash
-go run ./...
+   │
+   ▼
+Rust Gateway
+   │
+Header Forwarding
+   │
+   ▼
+Go Auth Service
+   │
+JWT Middleware
+   │
+Repository
+   │
+PostgreSQL
+   │
+   ▼
+User Profile
 ```
 
 ---
 
-# 🛣️ Roadmap
+# Current Endpoints
 
-## ✅ Phase 1
+## Gateway
 
-- [x] Project Setup
-- [x] PostgreSQL
-- [x] Docker
-- [x] Migrations
-- [x] Repository Layer
-- [x] Service Layer
+| Method | Endpoint |
+|---------|----------|
+| GET | `/health` |
+| ANY | `/auth/*` |
+
+---
+
+## Auth Service
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/` | Health Check |
+| POST | `/register` | Register User |
+| POST | `/login` | Login |
+| GET | `/me` | Current User |
+
+---
+
+# Current Progress
+
+## Completed
+
+### Infrastructure
+
+- [x] Project Structure
+- [x] Shared Configuration
+- [x] Logging
+- [x] PostgreSQL Integration
+
+### Rust Gateway
+
+- [x] Axum Setup
+- [x] Generic Reverse Proxy
+- [x] Dynamic Route Matching
+- [x] Header Forwarding
+- [x] Body Forwarding
+- [x] Health Endpoint
+- [x] Service-to-Service Communication
+
+### Go Auth Service
+
 - [x] Registration
 - [x] Login
 - [x] JWT Authentication
-- [x] JWT Middleware
 - [x] Protected Routes
-- [x] User Profile Endpoint
+- [x] Repository Pattern
+- [x] Unit Tests
+- [x] Repository Tests
 
 ---
 
-## 🚧 Phase 2
+# Upcoming Roadmap
 
-- [ ] Rust API Gateway
-- [ ] Reverse Proxy
-- [ ] Request Routing
-- [ ] JWT Validation
-- [ ] Rate Limiting
+## User Service
+
+- [ ] User Profiles
+- [ ] Update Profile
+- [ ] Search Users
+
+---
+
+## Gateway
+
+- [ ] Query Parameter Forwarding
+- [ ] Response Header Forwarding
 - [ ] Request Logging
+- [ ] CORS
+- [ ] Rate Limiting
+- [ ] Metrics
+- [ ] Tracing
 
 ---
 
-## 🚧 Phase 3
+## Platform
 
-- [ ] Next.js Frontend
-- [ ] Dashboard
-- [ ] Authentication UI
-- [ ] Protected Pages
-
----
-
-## 🚧 Phase 4
-
-- [ ] User Service
 - [ ] Redis
-- [ ] Kafka
 - [ ] gRPC
-
----
-
-## 🚧 Phase 5
-
+- [ ] Kafka
+- [ ] Docker
 - [ ] Kubernetes
 - [ ] Prometheus
 - [ ] Grafana
-- [ ] CI/CD
 
 ---
 
-# 📈 Current Progress
+## Frontend
 
-```
-Infrastructure        ████████████████████ 100%
-
-Auth Service          ████████████████████ 100%
-
-Rust Gateway          ░░░░░░░░░░░░░░░░░░░░   0%
-
-Frontend              ░░░░░░░░░░░░░░░░░░░░   0%
-
-User Service          ░░░░░░░░░░░░░░░░░░░░   0%
-
-Redis                 ░░░░░░░░░░░░░░░░░░░░   0%
-
-Kafka                 ░░░░░░░░░░░░░░░░░░░░   0%
-
-gRPC                  ░░░░░░░░░░░░░░░░░░░░   0%
-
-Kubernetes            ░░░░░░░░░░░░░░░░░░░░   0%
-```
+- [ ] Next.js
+- [ ] TypeScript
+- [ ] Tailwind CSS
+- [ ] Authentication
+- [ ] Dashboard
 
 ---
 
-# 🎯 Project Goal
+# Learning Goals
 
-The goal of Sentinel is to build a production-inspired distributed backend platform that demonstrates:
+Sentinel is built to gain hands-on experience with:
 
-- Clean Architecture
-- Microservices
+- Rust Backend Development
+- Go Microservices
 - Distributed Systems
-- High-performance Rust Networking
-- Cloud-native Development
-- Modern DevOps Practices
+- API Gateway Design
+- Authentication & Authorization
+- Cloud-Native Development
+- System Design
+- Docker & Kubernetes
+- Event-Driven Architecture
+- Observability
+- Production Backend Engineering
 
 ---
 
-## 👨‍💻 Author
+# Status
 
-**Anirudh Patwal**
+**Current Phase:** Gateway & Authentication ✅
 
+The project currently consists of a production-style Rust API Gateway routing requests to a Go-based Authentication Service backed by PostgreSQL. Authentication flows, protected routes, and generic reverse proxying are fully functional.
+
+The next milestone is expanding the platform with additional microservices, beginning with a dedicated User Service.
